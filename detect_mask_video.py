@@ -108,11 +108,20 @@ while True:
 	# grab the frame from the threaded video stream and resize it
 	# to have a maximum width of 400 pixels
 	frame = vs.read()
-	frame = imutils.resize(frame, width=400)
+	frame = imutils.resize(frame, width=800)
 
 	# detect faces in the frame and determine if they are wearing a
 	# face mask or not
 	(locs, preds) = detect_and_predict_mask(frame, faceNet, maskNet)
+
+	# expand face detection bounds
+	if len(locs):
+		(startX, startY, endX, endY) = locs[0]
+		startX = startX - 50
+		startY = startY - 50
+		endX = endX + 50
+		endY = endY + 50
+		locs = [(startX, startY, endX, endY)]
 
 	# loop over the detected face locations and their corresponding
 	# locations

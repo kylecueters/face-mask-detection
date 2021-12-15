@@ -18,7 +18,7 @@ def mask_image():
 		default="face_detector",
 		help="path to face detector model directory")
 	ap.add_argument("-m", "--model", type=str,
-		default="mask_detector.model",
+		default="latest_mask_detector.model",
 		help="path to trained face mask detector model")
 	ap.add_argument("-c", "--confidence", type=float, default=0.5,
 		help="minimum probability to filter weak detections")
@@ -69,6 +69,12 @@ def mask_image():
 			(startX, startY) = (max(0, startX), max(0, startY))
 			(endX, endY) = (min(w - 1, endX), min(h - 1, endY))
 
+			# expand face detection bounds
+			startX = startX - 50
+			startY = startY - 50
+			endX = endX + 50
+			endY = endY + 50
+
 			# extract the face ROI, convert it from BGR to RGB channel
 			# ordering, resize it to 60x60, and preprocess it
 			face = image[startY:endY, startX:endX]
@@ -93,7 +99,7 @@ def mask_image():
 			else:
 				label = "Without Mask"
 
-			color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+			color = (0, 255, 0) if label == "With Mask" else (0, 0, 255)
 
 			# include the probability in the label
 			label = "{}: {:.2f}%".format(label, max(withMask, withoutMask) * 100)

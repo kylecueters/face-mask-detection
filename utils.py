@@ -34,7 +34,7 @@ def split_data(path_to_data, path_to_save_train, path_to_save_val, split_size=0.
 
 def create_generators(batch_size, train_data_path, val_data_path):
     train_preprocessor = ImageDataGenerator(
-        rescale = 1 / 255.,
+        # rescale = 1 / 255.,
         rotation_range=10,
         width_shift_range=0.1,
         zoom_range=0.15,
@@ -45,7 +45,7 @@ def create_generators(batch_size, train_data_path, val_data_path):
     )
 
     test_preprocessor = ImageDataGenerator(
-        rescale = 1 / 255.,
+        # rescale = 1 / 255.,
     )
 
     train_generator = train_preprocessor.flow_from_directory(

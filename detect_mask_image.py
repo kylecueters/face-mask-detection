@@ -9,6 +9,10 @@ import numpy as np
 import argparse
 import cv2
 import os
+import tkinter
+from tkinter import messagebox
+
+popUpMsg = ""
 def mask_image():
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
@@ -49,6 +53,11 @@ def mask_image():
 	print("[INFO] computing face detections...")
 	net.setInput(blob)
 	detections = net.forward()
+
+	# mask count
+	cMask = 0
+	cNoMask = 0
+	cIncMask = 0
 
 	# loop over the detections
 	for i in range(0, detections.shape[2]):
@@ -91,28 +100,53 @@ def mask_image():
 			# determine the class label and color we'll use to draw
 			# the bounding box and text
 			# label = "Mask" if mask > withoutMask else "No Mask"
+			id = "Person " + str(i + 1)
 			label = ""
 			if incorrectMask > withMask and incorrectMask > withoutMask:
 				label = "Incorrect Mask"
+				cIncMask += 1
+				color = (0,165,255)
 			elif withMask > incorrectMask and withMask > withoutMask:
 				label = "With Mask"
+				cMask += 1
+				color = (0,255,0)
 			else:
 				label = "Without Mask"
-
-			color = (0, 255, 0) if label == "With Mask" else (0, 0, 255)
+				cNoMask += 1
+				color = (0,0,255)
 
 			# include the probability in the label
 			label = "{}: {:.2f}%".format(label, max(withMask, withoutMask) * 100)
 
 			# display the label and bounding box rectangle on the output
 			# frame
+			cv2.putText(image, id, (startX, startY - 25),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0,255,255), 2)
 			cv2.putText(image, label, (startX, startY - 10),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
 			cv2.rectangle(image, (startX, startY), (endX, endY), color, 2)
 
+	# mask counter popup message
+	global popUpMsg
+
+	strMask = "With mask: " + str(cMask) + "\n"
+	strNoMask = "Without mask: " + str(cNoMask) + "\n"
+	strIncMask = "Incorrect mask: " + str(cIncMask) + "\n"
+	popUpMsg = strMask + strIncMask + strNoMask
+
 	# show the output image
 	cv2.imshow("Output", image)
-	cv2.waitKey(0)
+	cv2.waitKey(1000)
+
+def popup_alert():
+
+	# hide main tkinter window
+	root = tkinter.Tk()
+	root.withdraw()
+
+	# show popup alert
+	messagebox.showinfo("Mask Count", popUpMsg)
 	
 if __name__ == "__main__":
 	mask_image()
+	popup_alert()
